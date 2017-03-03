@@ -87,3 +87,7 @@ ENV/
 
 # Rope project settings
 .ropeproject
+sample_submission.csv
+test.json
+train.json
+data/images_sample
