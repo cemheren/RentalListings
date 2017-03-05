@@ -30,3 +30,11 @@ f2write_idx.close()
 
 json.dump(unique_feature_ap_count, f2write_cnt)
 f2write_cnt.close()
+
+# Todo: some of the features needs tokenizing maybe >> BUT if you do this you also need to change  one_cold_feature_encoder()
+# Some of them are given like:
+# GoTo Hell Example: "Gym Fitness Lounge Swimming Pool Sun Decks Exercise Studios Indoor Half-Basketball Court" --> Used Only Once
+# GoTo Hell Example: "** HOLY DEAL BATMAN! * ENTIRE FLOOR! * MASSIVE 4BR MANSION * GOURMET KITCHEN * PETS OK **" --> Used Only Once
+# Reasonable Example: "private-outdoor-space" --> Used 22 Times
+# Typo Example: "Diswasher"  --> Used Only Once :)
+# Good Example: "Doorman"  --> Used 20898 Times
