@@ -1,37 +1,19 @@
-import operator
 import ijson
 import json
+from RL_encoders import to_one_cold_feature_encoding
 
-f = open('train.json', 'r')
-json_decode = json.load(f)
+f_train = open('train.json', 'r')
+# IMPORTANT: dumps should be created (you may download it directly or create at your local by running dumper)
+f_uniqfeature_dump = open('ufeature_to_index_dictionary.json', 'r')
 
-features = json_decode['features']
+json_decode_train = json.load(f_train)
+features = json_decode_train['features']
 
+# This json file contains key:uniquefeatures  value:fixedID
+json_decode_uniqfeature_dump = json.load(f_uniqfeature_dump)
 
-feature_list = []
-for item in features:
-    this_items_features = features[item]
-    for single_feature in this_items_features:
-        feature_list.append(single_feature)
-
-set_of_features = set(feature_list)
-unique_feature_list = list(set_of_features)
-unique_feature_idx_dict = {unique_feature_list[ii]: ii for ii in range(0, len(unique_feature_list))}
-
-num_unique_features = unique_feature_list.__len__()
-print num_unique_features
-
-# Now create new dictionary with encoding
-encoded_features_dict = dict()
-for item in features:
-    this_items_features = features[item]
-    indices_to_set_1_for_this_item = []
-    for single_feature in this_items_features:
-        indices_to_set_1_for_this_item.append(unique_feature_idx_dict[single_feature])
-    encoded_features = [0] * num_unique_features
-    for idx_to_set_1 in indices_to_set_1_for_this_item:
-        encoded_features[idx_to_set_1] = 1
-        encoded_features_dict[item] = encoded_features
+# This dictionary contains key:listing_id (I guess)  value:feature_indicator_vector
+encoded_features_dict = to_one_cold_feature_encoding(features, json_decode_uniqfeature_dump)
 
 # encoded_features is ready to write
 kkey = '4'
