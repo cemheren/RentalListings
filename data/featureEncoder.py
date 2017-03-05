@@ -3,6 +3,7 @@ import json
 from RL_encoders import to_one_cold_feature_encoding
 
 f_train = open('train.json', 'r')
+# IMPORTANT: dumps should be created (you may download it directly or create at your local by running dumper)
 f_uniqfeature_dump = open('ufeature_to_index_dictionary.json', 'r')
 
 json_decode_train = json.load(f_train)
@@ -17,7 +18,3 @@ encoded_features_dict = to_one_cold_feature_encoding(features, json_decode_uniqf
 # encoded_features is ready to write
 kkey = '4'
 print encoded_features_dict[kkey][160:190]
-
-
-
-
