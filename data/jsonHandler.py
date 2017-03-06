@@ -30,13 +30,16 @@ print(h)
 interest = keras.utils.np_utils.to_categorical(interest)
 trainlabels = interest
 
-price = [v for v in x['price'].values()]
+price = [v/1000.0 for v in x['price'].values()]
 traininputs.append(price)
 
 latitude = x['latitude']
 longitude = x['longitude']
 
-# using only bath, bed, interest, price so far.
+number_of_images = [v.__len__()/10.0 for v in x['photos'].values()]
+traininputs.append(number_of_images)
+
+# using only bath, bed, interest, price, number_of_images so far.
 
 pickle.dump(trainlabels, open('simple_train_labels.pickle', 'wb'))
 pickle.dump(np.array(traininputs).T, open('simple_train_inputs.pickle', 'wb'))
