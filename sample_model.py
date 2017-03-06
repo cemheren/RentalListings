@@ -8,9 +8,11 @@ x1 = pickle.load(open('data/simple_train_inputs.pickle', 'rb'))
 y1 = pickle.load(open('data/simple_train_labels.pickle', 'rb'))
 
 model = Sequential()
-model.add(Dense(output_dim=10, input_dim=3, activation='sigmoid'))
+model.add(Dense(output_dim=128, input_dim=3, activation='sigmoid'))
 model.add(Dropout(0.2))
-model.add(Dense(output_dim=3, input_dim=10, activation='softmax'))
+model.add(Dense(output_dim=128, input_dim=128, activation='sigmoid'))
+model.add(Dropout(0.2))
+model.add(Dense(output_dim=3, input_dim=128, activation='softmax'))
 
 model.compile(optimizer='sgd',
               loss='binary_crossentropy',
@@ -18,4 +20,14 @@ model.compile(optimizer='sgd',
 
 # train the model, iterating on the data in batches
 # of 32 samples
-model.fit(x1, y1, validation_split=0.2, nb_epoch=1, batch_size=64)
+model.fit(x1, y1, validation_split=0.2, nb_epoch=50, batch_size=64, class_weight={0: 1.0, 1: 3.0, 2: 9.0})
+
+print("-- TESTING...")
+for i in range(30):
+    print()
+    q = model.predict(np.reshape(x1[i], (1, 3)))[0]
+    q = np.argmax(q, axis=0)
+    print("prediction = ", q)
+    print("y = ", np.argmax(y1[i], axis=0))
+    print("x = ", x1[i])
+    print()

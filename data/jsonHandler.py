@@ -30,7 +30,7 @@ print(h)
 interest = keras.utils.np_utils.to_categorical(interest)
 trainlabels = interest
 
-price = [v for v in x['price'].values()]
+price = [v/1000.0 for v in x['price'].values()]
 traininputs.append(price)
 
 latitude = x['latitude']
