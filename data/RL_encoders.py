@@ -50,7 +50,7 @@ def to_region_idx_encoding(loaded_x_json):
     return region_xids
 
 
-def get_top_20_features(x_json):
+def get_top_n_features(x_json, number_of_features):
     features = x_json['features']
     feature_list = []
     unique_feature_ap_count = Counter()
@@ -64,6 +64,6 @@ def get_top_20_features(x_json):
     unique_feature_list = list(set_of_features)
     unique_feature_idx_dict = {unique_feature_list[ii]: ii for ii in range(0, len(unique_feature_list))}
 
-    most_common_features = unique_feature_ap_count.most_common(40)
+    most_common_features = unique_feature_ap_count.most_common(number_of_features)
 
     return most_common_features
