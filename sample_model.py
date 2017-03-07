@@ -32,7 +32,7 @@ model.compile(optimizer='adam',
               metrics=['accuracy', 'categorical_accuracy', 'fbeta_score'])
 
 # train the model, iterating on the data in batches // VERBOSE=2 for printing metrics
-model.fit(x1, y1, validation_split=0.2, nb_epoch=100, batch_size=8192, class_weight={0: 1.0, 1: 2.1, 2: 4.2}, verbose=2)
+model.fit(x1, y1, validation_split=0.2, nb_epoch=1000, batch_size=8192, class_weight={0: 1.0, 1: 2.1, 2: 4.2}, verbose=2)
 
 print("-- TESTING...")
 for i in range(30):

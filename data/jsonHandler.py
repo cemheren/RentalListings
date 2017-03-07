@@ -3,7 +3,7 @@ import json
 import keras.utils.np_utils
 import pickle
 import numpy as np
-from RL_encoders import to_region_idx_encoding, get_top_20_features
+from RL_encoders import to_region_idx_encoding, get_top_n_features
 
 interestResolver = dict()
 interestResolver['medium'] = 1
@@ -40,7 +40,7 @@ traininputs.append(number_of_images)
 number_of_description_words = [v.__len__()/1000.0 for v in x['description'].values()]
 traininputs.append(number_of_description_words)
 
-features_array = get_top_20_features(x)
+features_array = get_top_n_features(x, 40)
 for feature in features_array:
     f_input = [1 if feature[0] in v else 0 for v in x['features'].values()]
     traininputs.append(f_input)
