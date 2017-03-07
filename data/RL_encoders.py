@@ -1,7 +1,7 @@
 import ijson
 import json
 import numpy as np
-
+from collections import Counter
 
 # Arguments:
 # features_data_dict ==>  Dictionary that contains {listing_id: feature_list} pairs  [from json file]
@@ -20,6 +20,7 @@ def to_one_cold_feature_encoding(features_data_dict, unique_feature_idx_dict):
         # Now set this encoding to listing 'item'
         encoded_features_dict[item] = encoded_features
     return encoded_features_dict
+
 
 def to_region_idx_encoding(loaded_x_json):
     _roi_lat_min = 40.44
@@ -47,3 +48,22 @@ def to_region_idx_encoding(loaded_x_json):
             if _roi_xisting_idxs_dict.has_key(raw_region_index):
                 region_xids[ii] = _roi_xisting_idxs_dict[raw_region_index]
     return region_xids
+
+
+def get_top_20_features(x_json):
+    features = x_json['features']
+    feature_list = []
+    unique_feature_ap_count = Counter()
+    for item in features:
+        this_items_features = features[item]
+        unique_feature_ap_count.update(this_items_features)
+        for single_feature in this_items_features:
+            feature_list.append(single_feature)
+
+    set_of_features = set(feature_list)
+    unique_feature_list = list(set_of_features)
+    unique_feature_idx_dict = {unique_feature_list[ii]: ii for ii in range(0, len(unique_feature_list))}
+
+    most_common_features = unique_feature_ap_count.most_common(40)
+
+    return most_common_features

@@ -92,3 +92,4 @@ test.json
 train.json
 data/images_sample
 .idea
+simple_train_inputs.pickle
