@@ -1,3 +1,7 @@
+import ijson
+import json
+import numpy as np
+
 
 # Arguments:
 # features_data_dict ==>  Dictionary that contains {listing_id: feature_list} pairs  [from json file]
@@ -16,3 +20,30 @@ def to_one_cold_feature_encoding(features_data_dict, unique_feature_idx_dict):
         # Now set this encoding to listing 'item'
         encoded_features_dict[item] = encoded_features
     return encoded_features_dict
+
+def to_region_idx_encoding(loaded_x_json):
+    _roi_lat_min = 40.44
+    _roi_lat_max = 40.94
+    _roi_long_min = -74
+    _roi_long_max = -73
+    _roi_xisting_idxs = [0, 21, 22, 23, 31, 32, 33, 41, 42, 43, 51, 52, 53, 61, 62, 63, 71, 72, 81, 82, 91, 92, 93, 98]
+    _roi_xisting_idxs_dict = {_roi_xisting_idxs[ii]: ii for ii in range(0, len(_roi_xisting_idxs))}
+
+    latitude = [v for v in loaded_x_json['latitude'].values()]
+    longitude = [v for v in loaded_x_json['longitude'].values()]
+
+    num_entries = len(latitude)
+
+    # Just convert and put region Id // ZERO means outside
+    region_xids = [0] * num_entries
+    for ii in range(0, num_entries):
+        curr_lat = latitude[ii]
+        curr_long = longitude[ii]
+        if (_roi_lat_min < curr_lat and curr_lat < _roi_lat_max) and (_roi_long_min < curr_long and curr_long < _roi_long_max):
+            discrete_height = np.floor((curr_lat - _roi_lat_min) / 0.05)
+            discrete_widthh = np.floor((curr_long - _roi_long_min) / 0.1)
+            raw_region_index = discrete_height * 10 + discrete_widthh + 1
+            # In Region of Interest ==> Assign a sub region index from dictionary
+            if _roi_xisting_idxs_dict.has_key(raw_region_index):
+                region_xids[ii] = _roi_xisting_idxs_dict[raw_region_index]
+    return region_xids

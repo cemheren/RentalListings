@@ -1,8 +1,9 @@
-import ijson;
-import json;
+import ijson
+import json
 import keras.utils.np_utils
 import pickle
 import numpy as np
+from RL_encoders import to_region_idx_encoding
 
 interestResolver = dict()
 interestResolver['medium'] = 1
@@ -33,13 +34,22 @@ trainlabels = interest
 price = [v/1000.0 for v in x['price'].values()]
 traininputs.append(price)
 
-latitude = x['latitude']
-longitude = x['longitude']
 
 number_of_images = [v.__len__()/10.0 for v in x['photos'].values()]
 traininputs.append(number_of_images)
 
-# using only bath, bed, interest, price, number_of_images so far.
+
+# LatLong ==> Region Id ==> Categorical Encoding  (extra 24 inputs)
+# ZERO means outside
+region_xids = to_region_idx_encoding(x)
+# I guess I need to convert it to categorical encoding
+region_xids = keras.utils.np_utils.to_categorical(region_xids)
+col_num = region_xids.shape[1]
+for ii in range(0,col_num):
+    traininputs.append(region_xids[:,ii].tolist())
+
+
+# using only   bath,  bed,  interest,  price,  number_of_images,  region(lat,long)   so far.
 
 pickle.dump(trainlabels, open('simple_train_labels.pickle', 'wb'))
 pickle.dump(np.array(traininputs).T, open('simple_train_inputs.pickle', 'wb'))
