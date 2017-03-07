@@ -34,10 +34,11 @@ trainlabels = interest
 price = [v/1000.0 for v in x['price'].values()]
 traininputs.append(price)
 
-
 number_of_images = [v.__len__()/10.0 for v in x['photos'].values()]
 traininputs.append(number_of_images)
 
+number_of_description_words = [v.__len__()/1000.0 for v in x['description'].values()]
+traininputs.append(number_of_description_words)
 
 # LatLong ==> Region Id ==> Categorical Encoding  (extra 24 inputs)
 # ZERO means outside
@@ -45,8 +46,8 @@ region_xids = to_region_idx_encoding(x)
 # I guess I need to convert it to categorical encoding
 region_xids = keras.utils.np_utils.to_categorical(region_xids)
 col_num = region_xids.shape[1]
-for ii in range(0,col_num):
-    traininputs.append(region_xids[:,ii].tolist())
+for ii in range(0, col_num):
+    traininputs.append(region_xids[:, ii].tolist())
 
 
 # using only   bath,  bed,  interest,  price,  number_of_images,  region(lat,long)   so far.
