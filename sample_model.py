@@ -10,7 +10,7 @@ x1 = pickle.load(open('data/simple_train_inputs.pickle', 'rb'))
 y1 = pickle.load(open('data/simple_train_labels.pickle', 'rb'))
 
 # Use New Handler to Save Data that has 28 fields not 4
-input_size = 29
+input_size = 69
 hidden_size = 128
 
 model = Sequential()
