@@ -25,6 +25,8 @@ model.add(Dense(output_dim=hidden_size, input_dim=hidden_size, init='glorot_norm
 model.add(Dropout(0.5))
 model.add(Dense(output_dim=hidden_size, input_dim=hidden_size, init='glorot_normal', activation='sigmoid'))
 model.add(Dropout(0.5))
+
+
 model.add(Dense(output_dim=3, input_dim=hidden_size, init='glorot_normal', W_regularizer='l1l2', activation='softmax'))
 
 model.compile(optimizer='adam',
