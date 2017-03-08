@@ -10,7 +10,7 @@ x1 = pickle.load(open('data/simple_train_inputs.pickle', 'rb'))
 y1 = pickle.load(open('data/simple_train_labels.pickle', 'rb'))
 
 # Use New Handler to Save Data that has 28 fields not 4
-input_size = 69
+input_size = 49
 hidden_size = 128
 
 model = Sequential()
@@ -32,7 +32,9 @@ model.compile(optimizer='adam',
               metrics=['accuracy', 'categorical_accuracy', 'fbeta_score'])
 
 # train the model, iterating on the data in batches // VERBOSE=2 for printing metrics
-model.fit(x1, y1, validation_split=0.2, nb_epoch=1000, batch_size=8192, class_weight={0: 1.0, 1: 2.1, 2: 4.2}, verbose=2)
+model.fit(x1, y1, validation_split=0.2, nb_epoch=1000, batch_size=512, verbose=2)
+
+model.save('sample_model.km')
 
 print("-- TESTING...")
 for i in range(30):

@@ -40,7 +40,7 @@ traininputs.append(number_of_images)
 number_of_description_words = [v.__len__()/1000.0 for v in x['description'].values()]
 traininputs.append(number_of_description_words)
 
-features_array = get_top_n_features(x, 40)
+features_array = get_top_n_features(x, 20)
 for feature in features_array:
     f_input = [1 if feature[0] in v else 0 for v in x['features'].values()]
     traininputs.append(f_input)
