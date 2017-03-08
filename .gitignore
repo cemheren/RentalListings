@@ -93,3 +93,5 @@ train.json
 data/images_sample
 .idea
 simple_train_inputs.pickle
+simple_test_inputs.pickle
+simple_train_labels.pickle
