@@ -11,7 +11,7 @@ y1 = pickle.load(open('data/simple_train_labels.pickle', 'rb'))
 
 # Use New Handler to Save Data that has 28 fields not 4
 input_size = 49
-hidden_size = 128
+hidden_size = 256
 
 model = Sequential()
 model.add(Dense(output_dim=2 * hidden_size, input_dim=input_size, init='glorot_normal', activation='tanh'))
@@ -34,7 +34,7 @@ model.compile(optimizer='adam',
               metrics=['accuracy', 'categorical_accuracy', 'fbeta_score'])
 
 # train the model, iterating on the data in batches // VERBOSE=2 for printing metrics
-model.fit(x1, y1, validation_split=0.0, nb_epoch=80, batch_size=512, verbose=2)
+model.fit(x1, y1, validation_split=0.0, nb_epoch=10000, batch_size=512, verbose=2)
 
 model.save('sample_model.km')
 

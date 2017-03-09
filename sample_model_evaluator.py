@@ -12,7 +12,7 @@ ids = pickle.load(open('data/listing_ids.pickle', 'rb'))
 
 # Use New Handler to Save Data that has 28 fields not 4
 input_size = 49
-hidden_size = 128
+hidden_size = 256
 
 model = Sequential()
 model.add(Dense(output_dim=2 * hidden_size, input_dim=input_size, init='glorot_normal', activation='tanh'))
@@ -48,7 +48,7 @@ for i in range(len(result)):
     line = str(current_id) + ',' + ",".join(map(str, r))
     submission_file.append(line)
 
-sub_file = open('submission.txt', 'w')
+sub_file = open('submission_256_10k.txt', 'w')
 for item in submission_file:
     sub_file.write("%s\n" % item)
 
