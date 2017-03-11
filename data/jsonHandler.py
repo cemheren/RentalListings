@@ -20,7 +20,7 @@ x = json.load(f)
 # Output CLASS Values
 ###########################
 interest = [interestResolver[v] for v in x['interest_level'].values()]
-print(np.histogram(interest, bins=[0, 1, 2, 3], density=True))
+print 'ClassHistogram:', np.histogram(interest, bins=[0, 1, 2, 3], density=True)
 trainlabels = keras.utils.np_utils.to_categorical(interest)
 
 
@@ -36,6 +36,7 @@ number_of_description_words = [v.__len__()/1000.0 for v in x['description'].valu
 
 
 # INPUT Matrix  (EASY to manipulate as matrix (NDArray) for trimming and normalizing)
+# Also Columns become FLOAT
 input_matrix = np.column_stack( (bath, bed, price, number_of_images, number_of_description_words) )
 
 
