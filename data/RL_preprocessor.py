@@ -27,9 +27,19 @@ def find_keep_mask_for_price(price_list, upper_perc=None, lower_perc=None):
 
 
 def normalize_col(input_matrix, col_idx):
+    num_cols = input_matrix.shape.__len__()
     # Eval Mean Stdev
-    col_mean = np.mean(input_matrix[:, col_idx])
-    col_std = np.std(input_matrix[:, col_idx])
-    normalized_matrix = input_matrix
-    normalized_matrix[:, col_idx] = (input_matrix[:, col_idx] - col_mean) / col_std
+    if num_cols == 1:
+        col_mean = np.mean(input_matrix)
+        col_std = np.std(input_matrix)
+        normalized_matrix = (input_matrix - col_mean) / col_std
+    else:
+        col_mean = np.mean(input_matrix[:, col_idx])
+        col_std = np.std(input_matrix[:, col_idx])
+        normalized_matrix = input_matrix
+        normalized_matrix[:, col_idx] = (input_matrix[:, col_idx] - col_mean) / col_std
+    print '###############################################'
+    print 'Preprocessing (Normalization): col_idx=', col_idx
+    print 'Mean=', col_mean, '\t\t Stdev=', col_std
+    print '###############################################'
     return normalized_matrix
