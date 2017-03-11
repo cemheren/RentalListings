@@ -78,7 +78,7 @@ input_matrix_norm = normalize_col(input_matrix, _PRICE_COL_)
 
 
 pickle.dump(trainlabels, open('simple_train_labels.pickle', 'wb'))
-pickle.dump(input_matrix, open('simple_train_inputs.pickle', 'wb'))
+pickle.dump(input_matrix_norm, open('simple_train_inputs.pickle', 'wb'))
 
 # todo: pre process the data here. e.g. normalize fields, outlier detection, one hot encoding.
 # todo: some fields can be simplified, like images -> just take the number of images to begin with
