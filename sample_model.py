@@ -26,16 +26,10 @@ model.compile(optimizer='adam',
               metrics=['accuracy', 'categorical_accuracy', 'fbeta_score'])
 
 # train the model, iterating on the data in batches // VERBOSE=2 for printing metrics
-model.fit(x1, y1, validation_split=0.01, nb_epoch=256, batch_size=512, verbose=2)
+model.fit(x1, y1, validation_split=0.05, nb_epoch=256, batch_size=512, verbose=2)
 
 model.save('sample_model_79.km')
 
-print("-- TESTING...")
-for i in range(30):
-    print("-")
-    q = model.predict(np.reshape(x1[i], (1, input_size)))[0]
-    q = np.argmax(q, axis=0)
-    print("prediction = ", q)
-    print("y = ", np.argmax(y1[i], axis=0))
-    print("x = ", x1[i])
-    print("-")
+classes = model.predict_classes(x1)
+h = np.histogram(classes)
+print(h)
