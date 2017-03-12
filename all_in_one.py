@@ -25,7 +25,7 @@ ids_test = pickle.load(open('data/listing_ids.pickle', 'rb'))
 # Prepare and Process Data
 num_features_to_extract = 100
 # If you want you may run data handling by de-commenting the next line
-#jDH.handle_data_and_picle_it(num_features_to_extract)
+jDH.handle_data_and_picle_it(num_features_to_extract)
 normalizableColumnResolver = jDH.get_normalizable_column_resolver()
 
 ##################################################
