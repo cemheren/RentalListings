@@ -73,7 +73,6 @@ def handle_data_and_picle_it(num_features_to_extract):
     # Get LABEL Values
     ################################################
     interest = [interestResolver[v] for v in x['interest_level'].values()]
-    print 'ClassHistogram:', np.histogram(interest)
     trainlabels = keras.utils.np_utils.to_categorical(interest)
 
 
@@ -144,6 +143,18 @@ def handle_data_and_picle_it(num_features_to_extract):
 
     # ToDo: One option can be just returning the variables (not saving). Time Cost seems not so big compared to training
     return 0
+
+
+
+def convert_categorical_to_class3(cat_vector):
+    num_entries = cat_vector.shape[0]
+    cat_converted = [0] * num_entries
+    for ii in range(0, num_entries):
+        if cat_vector[ii][1] == 1:
+            cat_converted[ii] = 1
+        elif cat_vector[ii][2] == 1:
+            cat_converted[ii] = 2
+    return cat_converted
 
 
 
