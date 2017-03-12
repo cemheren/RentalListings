@@ -31,10 +31,10 @@ max_features = 40000
 maxlen = 1000
 batch_size = 32
 embedding_dims = 100
-nb_filter = 250
+nb_filter = 256
 filter_length = 3
-hidden_dims = 500
-nb_epoch = 10
+hidden_dims = 1024
+nb_epoch = 4
 
 x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
 print('x_train shape:', x_train.shape)
@@ -47,7 +47,8 @@ model.add(Embedding(max_features, embedding_dims, input_length=maxlen, dropout=0
 
 # we add a Convolution1D, which will learn nb_filter
 # word group filters of size filter_length:
-model.add(Convolution1D(nb_filter=nb_filter, filter_length=filter_length, border_mode='valid', activation='relu', subsample_length=1))
+model.add(Convolution1D(nb_filter=nb_filter, filter_length=filter_length, border_mode='valid', activation='relu',
+                        subsample_length=1))
 
 # we use max pooling:
 model.add(GlobalMaxPooling1D())
@@ -63,10 +64,10 @@ model.add(Activation('sigmoid'))
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy', 'categorical_accuracy', 'fbeta_score'])
 
-model.fit(x_train, y_train, batch_size=batch_size, nb_epoch=nb_epoch, validation_split=0.2, verbose=1)
-
-classes = model.predict_classes(x_train)
-h = np.histogram(classes)
-print(h)
+for i in range(nb_epoch/4):
+    model.fit(x_train, y_train, batch_size=batch_size, nb_epoch=4, validation_split=0.1, verbose=1)
+    classes = model.predict_classes(x_train)
+    h = np.histogram(classes)
+    print(h)
 
 model.save("description_model.km")

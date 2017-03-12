@@ -26,7 +26,7 @@ traininputs.append(bed)
 # created = x['created']
 
 interest = [interestResolver[v] for v in x['interest_level'].values()]
-h = np.histogram(interest, bins=[0, 1, 2, 3], density=True)
+h = np.histogram(interest)
 print(h)
 
 interest = keras.utils.np_utils.to_categorical(interest)
