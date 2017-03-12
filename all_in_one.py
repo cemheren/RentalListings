@@ -4,7 +4,6 @@ import datetime
 
 import numpy as np
 import pickle
-import csv
 import keras
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Dropout
@@ -15,12 +14,14 @@ import jsonDataHandler as jDH
 import RL_preprocessor as RL_prep
 
 
+
 # Prepare and Process Data
 num_features_to_extract = 100
-# If you want you may run data handling by de-commenting the next line
+# If you want to run data handling --> next line
 jDH.handle_data_and_picle_it(num_features_to_extract)
 normalizableColumnResolver = jDH.get_normalizable_column_resolver()
 
+print '\n==> Reading Pickle Files'
 # Load Training & Test Data
 x1_train = pickle.load(open('data/simple_train_inputs.pickle', 'rb'))
 y1_train = pickle.load(open('data/simple_train_labels.pickle', 'rb'))
@@ -28,19 +29,22 @@ y1_train = pickle.load(open('data/simple_train_labels.pickle', 'rb'))
 x1_test = pickle.load(open('data/simple_test_inputs.pickle', 'rb'))
 ids_test = pickle.load(open('data/listing_ids.pickle', 'rb'))
 
+
+print '\n==> Normalizing Given Columns'
 ##################################################
 # Normalize Train and Test Together
 ##################################################
 (x1_train, x1_test) = RL_prep.normalize_cols(x1_train, x1_test, normalizableColumnResolver, ['price', 'num_images', 'num_desc_words'])
 
 
+print '\n==> Starting to Train Model\n'
 random_file_postfix = ''.join(random.choice(string.lowercase) for x in range(10))
-model_name = 'mi0129_' + datetime.datetime.now().strftime("t%H_%M_")
 ##################################################
 # Train Model on Train Data
 ##################################################
 input_size = 29 + num_features_to_extract
 hidden_size = 1024
+model_name = 'mi0' + str(input_size) + '_mh0' + str(hidden_size) + '_' + datetime.datetime.now().strftime("t%H_%M_")
 
 model = Sequential()
 model.add(Dense(output_dim=hidden_size, input_dim=input_size, init='glorot_normal', activation='tanh'))
@@ -61,16 +65,20 @@ model.fit(x1_train, y1_train, validation_split=0.05, nb_epoch=256, batch_size=51
 model.save('sample_model_' + model_name + random_file_postfix + '.km')
 
 
-predicted_classes_on_training_data = model.predict_classes(x1_train)
-print 'Trained Network Prediction Histogram on Training Data:', np.histogram(predicted_classes_on_training_data)
+print '\n==> Running Trained Model on Training Data'
+predicted_classes_on_training_data = model.predict_classes(x1_train, verbose=2)
+print '\nBefore Trn ClassHistogram:', np.histogram(jDH.convert_categorical_to_class3(y1_train), bins=[0, 1, 2, 3], density=True)
+print 'After  Trn ClassHistogram:', np.histogram(predicted_classes_on_training_data, bins=[0, 1, 2, 3], density=True)
 
 
+print '\n==> Running Trained Model on Test Data'
 ##################################################
 # Run This Model on Test Data
 ##################################################
 result = model.predict(x1_test, verbose=2)
 
 
+print '\n==> Preparing Submission File'
 submission_file = []
 submission_file.append("listing_id,high,medium,low")
 
@@ -85,4 +93,4 @@ sub_file = open('submission_' + model_name + random_file_postfix + '.txt', 'w')
 for item in submission_file:
     sub_file.write("%s\n" % item)
 
-print '\nDone'
+print '\n==> All Done'
