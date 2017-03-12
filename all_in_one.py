@@ -14,13 +14,6 @@ sys.path.insert(0, './data')
 import jsonDataHandler as jDH
 import RL_preprocessor as RL_prep
 
-# Load Training & Test Data
-x1_train = pickle.load(open('data/simple_train_inputs.pickle', 'rb'))
-y1_train = pickle.load(open('data/simple_train_labels.pickle', 'rb'))
-
-x1_test = pickle.load(open('data/simple_test_inputs.pickle', 'rb'))
-ids_test = pickle.load(open('data/listing_ids.pickle', 'rb'))
-
 
 # Prepare and Process Data
 num_features_to_extract = 100
@@ -28,10 +21,16 @@ num_features_to_extract = 100
 jDH.handle_data_and_picle_it(num_features_to_extract)
 normalizableColumnResolver = jDH.get_normalizable_column_resolver()
 
+# Load Training & Test Data
+x1_train = pickle.load(open('data/simple_train_inputs.pickle', 'rb'))
+y1_train = pickle.load(open('data/simple_train_labels.pickle', 'rb'))
+
+x1_test = pickle.load(open('data/simple_test_inputs.pickle', 'rb'))
+ids_test = pickle.load(open('data/listing_ids.pickle', 'rb'))
+
 ##################################################
 # Normalize Train and Test Together
 ##################################################
-# Get Normalizing Parameters from Training Data
 (x1_train, x1_test) = RL_prep.normalize_cols(x1_train, x1_test, normalizableColumnResolver, ['price', 'num_images', 'num_desc_words'])
 
 
