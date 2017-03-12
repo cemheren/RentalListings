@@ -11,13 +11,13 @@ ids = pickle.load(open('data/listing_ids.pickle', 'rb'))
 # y1 = pickle.load(open('data/simple_train_labels.pickle', 'rb'))
 
 # Use New Handler to Save Data that has 28 fields not 4
-input_size = 79
+input_size = 129
 hidden_size = 1024
 
 model = Sequential()
 model.add(Dense(output_dim=hidden_size, input_dim=input_size, init='glorot_normal', activation='tanh'))
 model.add(Dropout(0.3))
-model.add(Dense(output_dim=hidden_size, input_dim=hidden_size, init='glorot_normal', activation='sigmoid'))
+model.add(Dense(output_dim=hidden_size, input_dim=hidden_size, init='glorot_normal', activation='tanh'))
 model.add(Dropout(0.3))
 
 model.add(Dense(output_dim=3, input_dim=hidden_size, init='glorot_normal', W_regularizer='l1l2', activation='softmax'))
@@ -42,7 +42,7 @@ for i in range(len(result)):
     line = str(current_id) + ',' + ",".join(map(str, r))
     submission_file.append(line)
 
-sub_file = open('submission_79.txt', 'w')
+sub_file = open('submission_129.txt', 'w')
 for item in submission_file:
     sub_file.write("%s\n" % item)
 

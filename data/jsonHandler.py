@@ -42,7 +42,7 @@ number_of_description_words = [v.__len__()/1000.0 for v in x['description'].valu
 traininputs.append(number_of_description_words)
 
 
-features_array = get_top_n_features(x, 50)
+features_array = get_top_n_features(x, 100)
 pickle.dump(features_array, open('features_array.pickle', 'wb'))
 
 for feature in features_array:
