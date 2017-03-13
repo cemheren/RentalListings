@@ -6,6 +6,9 @@ import numpy as np
 import RL_encoders as RL_enc
 import RL_preprocessor as RL_prep
 import os
+import string
+import random
+import datetime
 
 
 def handle_data_and_picle_it(num_features_to_extract):
@@ -178,3 +181,10 @@ def get_normalizable_column_resolver():
     return normalizableColumnResolver
 
 
+def get_model_and_submission_file_name_dictionary(input_size, hidden_size):
+    fname_dictionary = dict()
+    random_file_postfix = ''.join(random.choice(string.lowercase) for x in range(5))
+    model_name = 'mi0' + str(input_size) + '_mh0' + str(hidden_size) + '_' + datetime.datetime.now().strftime("d%d_t%H_%M_")
+    fname_dictionary['model_fname'] = 'samp_model_' + model_name + random_file_postfix + '.km'
+    fname_dictionary['submission_fname'] = 'submission_' + model_name + random_file_postfix + '.txt'
+    return fname_dictionary
