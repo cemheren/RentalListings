@@ -1,4 +1,3 @@
-import string
 import numpy as np
 import pickle
 import keras
@@ -11,10 +10,9 @@ import jsonDataHandler as jDH
 import RL_preprocessor as RL_prep
 
 
-
-# Prepare and Process Data
+print '\n==> If There is no Change in Data Handling, You May Comment-out Data Handling'
 num_features_to_extract = 100
-# If you want to run data handling --> next line
+# For data handling --> next line
 jDH.handle_data_and_picle_it(num_features_to_extract)
 normalizableColumnResolver = jDH.get_normalizable_column_resolver()
 
@@ -31,14 +29,14 @@ print '\n==> Normalizing Given Columns'
 ##################################################
 # Normalize Train and Test Together
 ##################################################
-(x1_train, x1_test) = RL_prep.normalize_cols(x1_train, x1_test, normalizableColumnResolver, ['price', 'num_images', 'num_desc_words'])
+(x1_train, x1_test) = RL_prep.normalize_cols(x1_train, x1_test, normalizableColumnResolver, ['price', 'num_images', 'num_desc_words', 'days_passed'])
 
 
 print '\n==> Starting to Train Model\n'
 ##################################################
 # Train Model on Train Data
 ##################################################
-input_size = 29 + num_features_to_extract
+input_size = 30 + num_features_to_extract
 hidden_size = 1024
 
 model = Sequential()
