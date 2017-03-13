@@ -28,13 +28,13 @@ x_train, words_dictionary = words_to_numbers(x_train, "words_dictionary.pickle")
 y_train = pickle.load(open('../data/simple_train_labels.pickle', 'rb'))
 
 max_features = 40000
-maxlen = 1000
+maxlen = 1500
 batch_size = 32
-embedding_dims = 100
-nb_filter = 256
-filter_length = 3
+embedding_dims = 120
+nb_filter = 128
+filter_length = 6
 hidden_dims = 1024
-nb_epoch = 4
+nb_epoch = 40
 
 x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
 print('x_train shape:', x_train.shape)
@@ -64,8 +64,8 @@ model.add(Activation('sigmoid'))
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy', 'categorical_accuracy', 'fbeta_score'])
 
-for i in range(nb_epoch/4):
-    model.fit(x_train, y_train, batch_size=batch_size, nb_epoch=4, validation_split=0.1, verbose=1)
+for i in range(nb_epoch/2):
+    model.fit(x_train, y_train, batch_size=batch_size, nb_epoch=2, validation_split=0.1, verbose=1)
     classes = model.predict_classes(x_train)
     h = np.histogram(classes)
     print(h)
