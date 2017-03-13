@@ -5,9 +5,7 @@ import pickle
 import numpy as np
 import RL_encoders as RL_enc
 import RL_preprocessor as RL_prep
-
 import os
-
 
 
 def handle_data_and_picle_it(num_features_to_extract):
@@ -22,8 +20,6 @@ def handle_data_and_picle_it(num_features_to_extract):
         path_prefix = './data/'
     else:
         print('\nError in Path')
-
-
 
     f_train = open(path_prefix + 'train.json', 'r')
     x = json.load(f_train)
@@ -75,7 +71,13 @@ def handle_data_and_picle_it(num_features_to_extract):
     interest = [interestResolver[v] for v in x['interest_level'].values()]
     trainlabels = keras.utils.np_utils.to_categorical(interest)
 
+    pickle.dump(trainlabels, open(path_prefix + 'simple_train_labels_with_outliers.pickle', 'wb'))
 
+    ################################################
+    # Get Description based predictions of other model
+    ################################################
+    # description_train_array = pickle.load(open("./description/description_train_results.pickle", 'rb'))
+    # input_matrix = np.c_[input_matrix, description_train_array]
 
     print 'Removing outliers from Training_Data'
     ################################################
@@ -132,6 +134,12 @@ def handle_data_and_picle_it(num_features_to_extract):
     col_num = test_region_xids.shape[1]
     for ii in range(0, col_num):
         test_input_matrix = np.c_[test_input_matrix, test_region_xids[:, ii].tolist()]
+
+    ################################################
+    # Get Description based predictions of other model
+    ################################################
+    # description_test_array = pickle.load(open("./description/description_test_results.pickle", 'rb'))
+    # test_input_matrix = np.c_[test_input_matrix, description_test_array]
 
 
     print 'Pickling Test_Data \t[Started]'

@@ -44,6 +44,7 @@ random_file_postfix = ''.join(random.choice(string.lowercase) for x in range(10)
 ##################################################
 input_size = 29 + num_features_to_extract
 hidden_size = 1024
+
 model_name = 'mi0' + str(input_size) + '_mh0' + str(hidden_size) + '_' + datetime.datetime.now().strftime("t%H_%M_")
 
 model = Sequential()
@@ -70,13 +71,11 @@ predicted_classes_on_training_data = model.predict_classes(x1_train, verbose=2)
 print '\nBefore Trn ClassHistogram:', np.histogram(jDH.convert_categorical_to_class3(y1_train), bins=[0, 1, 2, 3], density=True)
 print 'After  Trn ClassHistogram:', np.histogram(predicted_classes_on_training_data, bins=[0, 1, 2, 3], density=True)
 
-
 print '\n==> Running Trained Model on Test Data'
 ##################################################
 # Run This Model on Test Data
 ##################################################
 result = model.predict(x1_test, verbose=2)
-
 
 print '\n==> Preparing Submission File'
 submission_file = []

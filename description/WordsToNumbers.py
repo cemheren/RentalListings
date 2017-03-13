@@ -43,7 +43,7 @@ def words_to_numbers(input_matrix=[[]], file_to_write=""):
                 words[col] = current_count
                 current_count += 1
 
-        return_matrix[i].append(words[col])
+            return_matrix[i].append(words[col])
 
     if file_to_write != "":
         pickle.dump(words, open(file_to_write, 'wb'))
@@ -70,6 +70,6 @@ def words_to_numbers_from_old_words_dict(input_matrix=[[]], words=dict(), unk_in
             if col in words:
                 value = words[col]
 
-        return_matrix[i].append(value)
+            return_matrix[i].append(value)
 
     return return_matrix
