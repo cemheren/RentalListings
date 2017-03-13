@@ -8,7 +8,7 @@ import RL_preprocessor as RL_prep
 import os
 import string
 import random
-import datetime
+from datetime import datetime as DT
 
 
 def handle_data_and_picle_it(num_features_to_extract):
@@ -48,8 +48,14 @@ def handle_data_and_picle_it(num_features_to_extract):
     number_of_images = [float(v.__len__()) for v in x['photos'].values()]
     number_of_description_words = [float(v.__len__()) for v in x['description'].values()]
 
+    date_format = "%Y-%m-%d %H:%M:%S"
+    fixed_date = DT.strptime('2017-03-01 15:30:30', date_format)
+    days_passed = [(fixed_date - DT.strptime(v, date_format)).days for v in x['created'].values()]
+
     # Create INPUT Matrix
-    input_matrix = np.column_stack( (bath, bed, price, number_of_images, number_of_description_words) )
+    input_matrix = np.column_stack( (bath, bed, price, number_of_images, number_of_description_words, days_passed) )
+
+
 
     # Add Features as Categorical
     for feature in features_array:
@@ -122,8 +128,10 @@ def handle_data_and_picle_it(num_features_to_extract):
     test_number_of_images = [v.__len__() for v in test_y['photos'].values()]
     test_number_of_description_words = [v.__len__() for v in test_y['description'].values()]
 
+    test_days_passed = [(fixed_date - DT.strptime(v, date_format)).days for v in test_y['created'].values()]
+
     # Create TEST INPUT Matrix (Same Order with TRAINING DATA)
-    test_input_matrix = np.column_stack( (test_bath, test_bed, test_price, test_number_of_images, test_number_of_description_words) )
+    test_input_matrix = np.column_stack( (test_bath, test_bed, test_price, test_number_of_images, test_number_of_description_words, test_days_passed) )
 
     for feature in features_array:
         f_input = [1 if feature[0] in v else 0 for v in test_y['features'].values()]
@@ -178,13 +186,14 @@ def get_normalizable_column_resolver():
     normalizableColumnResolver['price'] = 2
     normalizableColumnResolver['num_images'] = 3
     normalizableColumnResolver['num_desc_words'] = 4
+    normalizableColumnResolver['days_passed'] = 5
     return normalizableColumnResolver
 
 
 def get_model_and_submission_file_name_dictionary(input_size, hidden_size):
     fname_dictionary = dict()
     random_file_postfix = ''.join(random.choice(string.lowercase) for x in range(5))
-    model_name = 'mi0' + str(input_size) + '_mh0' + str(hidden_size) + '_' + datetime.datetime.now().strftime("d%d_t%H_%M_")
+    model_name = 'mi0' + str(input_size) + '_mh0' + str(hidden_size) + '_' + DT.now().strftime("d%d_t%H_%M_")
     fname_dictionary['model_fname'] = 'samp_model_' + model_name + random_file_postfix + '.km'
     fname_dictionary['submission_fname'] = 'submission_' + model_name + random_file_postfix + '.txt'
     return fname_dictionary
