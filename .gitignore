@@ -95,6 +95,8 @@ data/images_sample
 simple_train_inputs.pickle
 simple_test_inputs.pickle
 simple_train_labels.pickle
+simple_train_labels_with_outliers.pickle
 *.km
 submission_.*
 submission_*
+*.pyc

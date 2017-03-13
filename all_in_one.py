@@ -1,7 +1,4 @@
 import string
-import random
-import datetime
-
 import numpy as np
 import pickle
 import keras
@@ -38,14 +35,11 @@ print '\n==> Normalizing Given Columns'
 
 
 print '\n==> Starting to Train Model\n'
-random_file_postfix = ''.join(random.choice(string.lowercase) for x in range(10))
 ##################################################
 # Train Model on Train Data
 ##################################################
 input_size = 29 + num_features_to_extract
 hidden_size = 1024
-
-model_name = 'mi0' + str(input_size) + '_mh0' + str(hidden_size) + '_' + datetime.datetime.now().strftime("t%H_%M_")
 
 model = Sequential()
 model.add(Dense(output_dim=hidden_size, input_dim=input_size, init='glorot_normal', activation='tanh'))
@@ -62,14 +56,17 @@ model.compile(optimizer='adam',
 # train the model, iterating on the data in batches // VERBOSE=2 for printing metrics
 model.fit(x1_train, y1_train, validation_split=0.05, nb_epoch=256, batch_size=512, verbose=2)
 
+# Get File Names (model name is formed by number of hidden and input layer nodes)
+fname_dictionary = jDH.get_model_and_submission_file_name_dictionary(input_size, hidden_size)
 # Save This Model
-model.save('sample_model_' + model_name + random_file_postfix + '.km')
+model.save(fname_dictionary['model_fname'])
 
 
 print '\n==> Running Trained Model on Training Data'
 predicted_classes_on_training_data = model.predict_classes(x1_train, verbose=2)
-print '\nBefore Trn ClassHistogram:', np.histogram(jDH.convert_categorical_to_class3(y1_train), bins=[0, 1, 2, 3], density=True)
-print 'After  Trn ClassHistogram:', np.histogram(predicted_classes_on_training_data, bins=[0, 1, 2, 3], density=True)
+print '\nOriginal TD ClassHistogram:', np.histogram(jDH.convert_categorical_to_class3(y1_train), bins=[0, 1, 2, 3], density=True)
+print 'Predicted TD ClassHistogram:', np.histogram(predicted_classes_on_training_data, bins=[0, 1, 2, 3], density=True)
+
 
 print '\n==> Running Trained Model on Test Data'
 ##################################################
@@ -88,7 +85,7 @@ for i in range(len(result)):
     submission_file.append(line)
 
 # Save Output of Testing
-sub_file = open('submission_' + model_name + random_file_postfix + '.txt', 'w')
+sub_file = open(fname_dictionary['submission_fname'], 'w')
 for item in submission_file:
     sub_file.write("%s\n" % item)
 
