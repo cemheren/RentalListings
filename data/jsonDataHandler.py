@@ -69,10 +69,7 @@ def handle_data_and_picle_it(num_features_to_extract):
     # LatLong ==> Region Id ==> Categorical Encoding  (extra 24 inputs)
     # ZERO means outside
     region_xids = RL_enc.to_region_idx_encoding(x)
-    # I need to convert it to categorical encoding
-    region_xids = keras.utils.np_utils.to_categorical(region_xids)
-    col_num = region_xids.shape[1]
-    for ii in range(0, col_num):
+    for ii in range(0, region_xids.shape[1]):
         input_matrix = np.c_[input_matrix, region_xids[:, ii].tolist()]
 
     ################################################
@@ -138,13 +135,13 @@ def handle_data_and_picle_it(num_features_to_extract):
         f_input = [1 if feature[0] in map(lambda k: re.sub(r'[^\w]', '', k.translate(string.punctuation).lower()), v) else 0 for v in test_y['features'].values()]
         test_input_matrix = np.c_[test_input_matrix, f_input]
 
+    ################################################
+    # Get Region Id Values
+    ################################################
     # LatLong ==> Region Id ==> Categorical Encoding  (extra 24 inputs)
     # ZERO means outside
     test_region_xids = RL_enc.to_region_idx_encoding(test_y)
-    # I need to convert it to categorical encoding
-    test_region_xids = keras.utils.np_utils.to_categorical(test_region_xids, nb_classes=24)
-    col_num = test_region_xids.shape[1]
-    for ii in range(0, col_num):
+    for ii in range(0, test_region_xids.shape[1]):
         test_input_matrix = np.c_[test_input_matrix, test_region_xids[:, ii].tolist()]
 
     ################################################

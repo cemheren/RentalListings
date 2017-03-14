@@ -4,6 +4,7 @@ import numpy as np
 import re
 import string
 from collections import Counter
+import keras.utils.np_utils as NPU
 
 # Arguments:
 # features_data_dict ==>  Dictionary that contains {listing_id: feature_list} pairs  [from json file]
@@ -49,6 +50,11 @@ def to_region_idx_encoding(loaded_x_json):
             # In Region of Interest ==> Assign a sub region index from dictionary
             if _roi_xisting_idxs_dict.has_key(raw_region_index):
                 region_xids[ii] = _roi_xisting_idxs_dict[raw_region_index]
+    # I moved categorical encoding part here
+    region_xids = NPU.to_categorical(region_xids, nb_classes=24)
+    # I have double checked Train and Test data, There was a probability of having wrong encoding
+    # But luckily we do not have that problem, I can implement this safer BUT it became so slow
+    # So I am leaving this as ToDo: not necessary but there is a safer implementation
     return region_xids
 
 
