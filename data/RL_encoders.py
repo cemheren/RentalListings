@@ -1,6 +1,8 @@
 import ijson
 import json
 import numpy as np
+import re
+import string
 from collections import Counter
 
 # Arguments:
@@ -55,7 +57,7 @@ def get_top_n_features(x_json, number_of_features):
     feature_list = []
     unique_feature_ap_count = Counter()
     for item in features:
-        this_items_features = features[item]
+        this_items_features = [re.sub(r'[^\w]', '', v.translate(string.punctuation).lower()) for v in features[item]]
         unique_feature_ap_count.update(this_items_features)
         for single_feature in this_items_features:
             feature_list.append(single_feature)

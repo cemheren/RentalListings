@@ -11,7 +11,7 @@ import RL_preprocessor as RL_prep
 
 
 print '\n==> If There is no Change in Data Handling, You May Comment-out Data Handling'
-num_features_to_extract = 100
+num_features_to_extract = 200
 # For data handling --> next line
 jDH.handle_data_and_picle_it(num_features_to_extract)
 normalizableColumnResolver = jDH.get_normalizable_column_resolver()

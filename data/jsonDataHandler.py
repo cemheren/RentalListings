@@ -7,6 +7,7 @@ import RL_encoders as RL_enc
 import RL_preprocessor as RL_prep
 import os
 import string
+import re
 import random
 from datetime import datetime as DT
 
@@ -59,7 +60,7 @@ def handle_data_and_picle_it(num_features_to_extract):
 
     # Add Features as Categorical
     for feature in features_array:
-        f_input = [1 if feature[0] in v else 0 for v in x['features'].values()]
+        f_input = [1 if feature[0] in map(lambda k: re.sub(r'[^\w]', '', k.translate(string.punctuation).lower()), v) else 0 for v in x['features'].values()]
         input_matrix = np.c_[input_matrix, f_input]
 
     ################################################
@@ -134,7 +135,7 @@ def handle_data_and_picle_it(num_features_to_extract):
     test_input_matrix = np.column_stack( (test_bath, test_bed, test_price, test_number_of_images, test_number_of_description_words, test_days_passed) )
 
     for feature in features_array:
-        f_input = [1 if feature[0] in v else 0 for v in test_y['features'].values()]
+        f_input = [1 if feature[0] in map(lambda k: re.sub(r'[^\w]', '', k.translate(string.punctuation).lower()), v) else 0 for v in test_y['features'].values()]
         test_input_matrix = np.c_[test_input_matrix, f_input]
 
     # LatLong ==> Region Id ==> Categorical Encoding  (extra 24 inputs)
