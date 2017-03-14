@@ -12,7 +12,65 @@ import random
 from datetime import datetime as DT
 
 
-def handle_data_and_picle_it(num_features_to_extract):
+def handle_features_only_and_picle_it(num_features_to_extract):
+    if os.path.exists('train.json'):
+        path_prefix = ''
+    elif os.path.exists('./data/train.json'):
+        path_prefix = './data/'
+    else:
+        print('\nError in Path')
+
+    f_train = open(path_prefix + 'train.json', 'r')
+    x = json.load(f_train)
+
+    f_test = open(path_prefix + 'test.json', 'r')
+    test_y = json.load(f_test)
+
+    # Get Common Features from TRAIN DATA
+    features_array = RL_enc.get_top_n_features(x, num_features_to_extract)
+
+    x_features = x['features']
+
+    # Training Data PART STARTS!
+    feature_matrix = np.zeros(shape=(x_features.__len__(), num_features_to_extract))
+    ii = 0
+    # Add Features as Categorical
+    for feature in features_array:
+        f_input = [1 if feature[0] in map(lambda k: re.sub(r'[^\w]', '', k.translate(string.punctuation).lower()), v) else 0 for v in x_features.values()]
+        feature_matrix[:,ii] = f_input
+        # Bu da kolona liste vererek yapilabilen bir atamaymis
+        ii += 1
+
+    print 'Pickling Training_Data (Encoded) Features \t[Started]'
+    ################################################
+    # SAVE TRAIN DATA (INPUTS, LABELS)
+    ################################################
+    pickle.dump(feature_matrix, open(path_prefix + 'simple_train_inputs_features.pickle', 'wb'))
+    print 'Pickling Training_Data (Encoded) Features \t[Finished]'
+
+    # Test Data Part STARTS!
+    test_y_features = test_y['features']
+
+    test_feature_matrix = np.zeros(shape=(test_y_features.__len__(), num_features_to_extract))
+    ii = 0
+    # Add Features as Categorical
+    for feature in features_array:
+        f_input = [1 if feature[0] in map(lambda k: re.sub(r'[^\w]', '', k.translate(string.punctuation).lower()), v) else 0 for v in test_y_features.values()]
+        test_feature_matrix[:, ii] = f_input
+        # Bu da kolona liste vererek yapilabilen bir atamaymis
+        ii += 1
+
+    print 'Pickling Test_Data (Encoded) Features \t[Started]'
+    ################################################
+    # SAVE TRAIN DATA (INPUTS, LABELS)
+    ################################################
+    pickle.dump(test_feature_matrix, open(path_prefix + 'simple_test_inputs_features.pickle', 'wb'))
+    print 'Pickling Test_Data (Encoded) Features \t[Finished]'
+
+
+
+
+def handle_data_and_picle_it():
     interestResolver = dict()
     interestResolver['high'] = 0
     interestResolver['medium'] = 1
@@ -30,9 +88,6 @@ def handle_data_and_picle_it(num_features_to_extract):
 
     f_test = open(path_prefix + 'test.json', 'r')
     test_y = json.load(f_test)
-
-    # Get Common Features from TRAIN DATA
-    features_array = RL_enc.get_top_n_features(x, num_features_to_extract)
 
 
     print '\nStarting to prepare Training_Data'
@@ -56,12 +111,12 @@ def handle_data_and_picle_it(num_features_to_extract):
     # Create INPUT Matrix
     input_matrix = np.column_stack( (bath, bed, price, number_of_images, number_of_description_words, days_passed) )
 
-
-
-    # Add Features as Categorical
-    for feature in features_array:
-        f_input = [1 if feature[0] in map(lambda k: re.sub(r'[^\w]', '', k.translate(string.punctuation).lower()), v) else 0 for v in x['features'].values()]
-        input_matrix = np.c_[input_matrix, f_input]
+    ################################################
+    # Get Distances to 5 fixed points
+    ################################################
+    x_distances = RL_enc.get_distances(x)
+    for ii in range(0, x_distances.shape[1]):
+        input_matrix = np.c_[input_matrix, x_distances[:, ii].tolist()]
 
     ################################################
     # Get Region Id Values
@@ -78,24 +133,14 @@ def handle_data_and_picle_it(num_features_to_extract):
     interest = [interestResolver[v] for v in x['interest_level'].values()]
     trainlabels = keras.utils.np_utils.to_categorical(interest)
 
-    pickle.dump(trainlabels, open(path_prefix + 'simple_train_labels_with_outliers.pickle', 'wb'))
+    # Buna Gerek Yok Sanki ARTIK cunku Outlier ayiklamayi 1 ust seviyeye tasidim !!!!
+    # pickle.dump(trainlabels, open(path_prefix + 'simple_train_labels_with_outliers.pickle', 'wb'))
 
     ################################################
     # Get Description based predictions of other model
     ################################################
     # description_train_array = pickle.load(open("./description/description_train_results.pickle", 'rb'))
     # input_matrix = np.c_[input_matrix, description_train_array]
-
-    print 'Removing outliers from Training_Data'
-    ################################################
-    # Actual CLEANING Part Starts for Training Data
-    ################################################
-    # OUTLIER DELETION on <input_matrix> and <trainlabels>
-    price_keep_mask = RL_prep.find_keep_mask_for_price(price)
-
-
-    input_matrix = input_matrix[price_keep_mask, :]
-    trainlabels = trainlabels[price_keep_mask, :]
 
 
     print 'Pickling Training_Data \t[Started]'
@@ -107,13 +152,12 @@ def handle_data_and_picle_it(num_features_to_extract):
     print 'Pickling Training_Data \t[Finished]'
 
 
-
-
     ################################################
+    # Continue to Test Data Part
     ################################################
 
 
-    print '\n\nStarting to prepare Test_Data'
+    print '\nStarting to prepare Test_Data'
     ################################################
     # Test DATA Handling Starts
     ################################################
@@ -131,9 +175,13 @@ def handle_data_and_picle_it(num_features_to_extract):
     # Create TEST INPUT Matrix (Same Order with TRAINING DATA)
     test_input_matrix = np.column_stack( (test_bath, test_bed, test_price, test_number_of_images, test_number_of_description_words, test_days_passed) )
 
-    for feature in features_array:
-        f_input = [1 if feature[0] in map(lambda k: re.sub(r'[^\w]', '', k.translate(string.punctuation).lower()), v) else 0 for v in test_y['features'].values()]
-        test_input_matrix = np.c_[test_input_matrix, f_input]
+    ################################################
+    # Get Distances to 5 fixed points
+    ################################################
+    test_y_distances = RL_enc.get_distances(test_y)
+    for ii in range(0, test_y_distances.shape[1]):
+        test_input_matrix = np.c_[test_input_matrix, test_y_distances[:, ii].tolist()]
+
 
     ################################################
     # Get Region Id Values
@@ -158,7 +206,6 @@ def handle_data_and_picle_it(num_features_to_extract):
     pickle.dump(test_input_matrix, open(path_prefix + 'simple_test_inputs.pickle', 'wb'))
     print 'Pickling Test_Data \t[Finished]'
 
-    # ToDo: One option can be just returning the variables (not saving). Time Cost seems not so big compared to training
     return 0
 
 
@@ -185,6 +232,11 @@ def get_normalizable_column_resolver():
     normalizableColumnResolver['num_images'] = 3
     normalizableColumnResolver['num_desc_words'] = 4
     normalizableColumnResolver['days_passed'] = 5
+    normalizableColumnResolver['dist_1'] = 6
+    normalizableColumnResolver['dist_2'] = 7
+    normalizableColumnResolver['dist_3'] = 8
+    normalizableColumnResolver['dist_4'] = 9
+    normalizableColumnResolver['dist_5'] = 10
     return normalizableColumnResolver
 
 

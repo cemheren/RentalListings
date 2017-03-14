@@ -96,6 +96,8 @@ simple_train_inputs.pickle
 simple_test_inputs.pickle
 simple_train_labels.pickle
 simple_train_labels_with_outliers.pickle
+simple_test_inputs_features.pickle
+simple_train_inputs_features.pickle
 *.km
 submission_.*
 submission_*
