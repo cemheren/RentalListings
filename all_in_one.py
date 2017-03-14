@@ -42,7 +42,7 @@ random_file_postfix = ''.join(random.choice(string.lowercase) for x in range(10)
 ##################################################
 # Train Model on Train Data
 ##################################################
-input_size = 29 + num_features_to_extract
+input_size = 32 + num_features_to_extract
 hidden_size = 1024
 
 model_name = 'mi0' + str(input_size) + '_mh0' + str(hidden_size) + '_' + datetime.datetime.now().strftime("t%H_%M_")

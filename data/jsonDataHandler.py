@@ -76,8 +76,8 @@ def handle_data_and_picle_it(num_features_to_extract):
     ################################################
     # Get Description based predictions of other model
     ################################################
-    # description_train_array = pickle.load(open("./description/description_train_results.pickle", 'rb'))
-    # input_matrix = np.c_[input_matrix, description_train_array]
+    description_train_array = pickle.load(open("./description/description_train_results.pickle", 'rb'))
+    input_matrix = np.c_[input_matrix, description_train_array]
 
     print 'Removing outliers from Training_Data'
     ################################################
@@ -138,8 +138,8 @@ def handle_data_and_picle_it(num_features_to_extract):
     ################################################
     # Get Description based predictions of other model
     ################################################
-    # description_test_array = pickle.load(open("./description/description_test_results.pickle", 'rb'))
-    # test_input_matrix = np.c_[test_input_matrix, description_test_array]
+    description_test_array = pickle.load(open("./description/description_test_results.pickle", 'rb'))
+    test_input_matrix = np.c_[test_input_matrix, description_test_array]
 
 
     print 'Pickling Test_Data \t[Started]'

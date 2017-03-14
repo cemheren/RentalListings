@@ -12,7 +12,7 @@ from keras.layers import Embedding
 from keras.layers import Convolution1D, GlobalMaxPooling1D
 
 np.random.seed(1337)  # for reproducibility
-should_train = False  # load existing model if false
+should_train = True  # load existing model if false
 
 interestResolver = dict()
 interestResolver['medium'] = 1
@@ -45,10 +45,10 @@ max_features = 40000
 maxlen = 1500
 batch_size = 32
 embedding_dims = 120
-nb_filter = 128
-filter_length = 6
+nb_filter = 32
+filter_length = 3
 hidden_dims = 1024
-nb_epoch = 40
+nb_epoch = 10
 
 x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
 print('x_train shape:', x_train.shape)
@@ -58,14 +58,14 @@ print('x_test shape:', x_test.shape)
 
 model = Sequential()
 
-model.add(Embedding(max_features, embedding_dims, input_length=maxlen, dropout=0.2))
+model.add(Embedding(max_features, embedding_dims, input_length=maxlen, dropout=0.5))
 
 model.add(Convolution1D(nb_filter=nb_filter, filter_length=filter_length, border_mode='valid', activation='relu',
                         subsample_length=1))
 model.add(GlobalMaxPooling1D())
 
 model.add(Dense(hidden_dims))
-model.add(Dropout(0.2))
+model.add(Dropout(0.5))
 model.add(Activation('relu'))
 
 model.add(Dense(3))
