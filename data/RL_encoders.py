@@ -4,6 +4,7 @@ import numpy as np
 import re
 import string
 from collections import Counter
+import keras.utils.np_utils as NPU
 
 # Arguments:
 # features_data_dict ==>  Dictionary that contains {listing_id: feature_list} pairs  [from json file]
@@ -49,7 +50,38 @@ def to_region_idx_encoding(loaded_x_json):
             # In Region of Interest ==> Assign a sub region index from dictionary
             if _roi_xisting_idxs_dict.has_key(raw_region_index):
                 region_xids[ii] = _roi_xisting_idxs_dict[raw_region_index]
+    # I moved categorical encoding part here
+    region_xids = NPU.to_categorical(region_xids, nb_classes=24)
+    # I have double checked Train and Test data, There was a probability of having wrong encoding
+    # But luckily we do not have that problem, I can implement this safer BUT it became so slow
+    # So I am leaving this as ToDo: not necessary but there is a safer implementation
     return region_xids
+
+
+def get_distances(loaded_x_json):
+    pt1 = [40.778872, -73.964668]
+    pt2 = [40.726368, -74.083801]
+    pt3 = [40.666255, -73.969732]
+    pt4 = [40.778790, -73.922869]
+    pt5 = [40.728348, -73.774127]
+    fixed_pts = np.array([pt1, pt2, pt3, pt4, pt5])
+
+    latitude = [v for v in loaded_x_json['latitude'].values()]
+    longitude = [v for v in loaded_x_json['longitude'].values()]
+
+    latlong_of_listings = np.column_stack((latitude, longitude))
+
+    distances = spherical_dist(latlong_of_listings[:, None], fixed_pts)
+    return distances
+
+def spherical_dist(pos1, pos2, r=3958.75):
+    pos1 = pos1 * np.pi / 180
+    pos2 = pos2 * np.pi / 180
+    cos_lat1 = np.cos(pos1[..., 0])
+    cos_lat2 = np.cos(pos2[..., 0])
+    cos_lat_d = np.cos(pos1[..., 0] - pos2[..., 0])
+    cos_lon_d = np.cos(pos1[..., 1] - pos2[..., 1])
+    return r * np.arccos(cos_lat_d - cos_lat1 * cos_lat2 * (1 - cos_lon_d))
 
 
 def get_top_n_features(x_json, number_of_features):
@@ -62,9 +94,9 @@ def get_top_n_features(x_json, number_of_features):
         for single_feature in this_items_features:
             feature_list.append(single_feature)
 
-    set_of_features = set(feature_list)
-    unique_feature_list = list(set_of_features)
-    unique_feature_idx_dict = {unique_feature_list[ii]: ii for ii in range(0, len(unique_feature_list))}
+    # set_of_features = set(feature_list)
+    # unique_feature_list = list(set_of_features)
+    # unique_feature_idx_dict = {unique_feature_list[ii]: ii for ii in range(0, len(unique_feature_list))}
 
     most_common_features = unique_feature_ap_count.most_common(number_of_features)
 
