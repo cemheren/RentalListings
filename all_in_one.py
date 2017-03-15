@@ -4,16 +4,34 @@ import keras
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Dropout
 
+import time
+
 import sys
 sys.path.insert(0, './data')
 import jsonDataHandler as jDH
 import RL_preprocessor as RL_prep
 
 
-print '\n==> If There is no Change in Data Handling, You May Comment-out Data Handling or Feature Handling'
+print '\n==> If There is no Change in Data Handling, You May Deactivate Data Handling or Feature Handling by Setting Booleans'
+#########################################################
+# Set BOOLEANS for DEACTIVATING !!!! @@@@@ !!!!!!
+#########################################################
+HANDLE_FEATURES = True
+HANDLE_REMAINING_DATA = True
 num_features_to_extract = 200
-#jDH.handle_features_only_and_picle_it(num_features_to_extract) # Can be commented-out
-jDH.handle_data_and_picle_it() # Can be commented-out
+
+if HANDLE_FEATURES:
+    start = time.time()
+    jDH.handle_features_only_and_picle_it(num_features_to_extract)
+    end = time.time()
+    print 'Feature Handling Time:', (end - start)
+
+if HANDLE_REMAINING_DATA:
+    start = time.time()
+    jDH.handle_data_and_picle_it()
+    end = time.time()
+    print 'Data Handling Time:', (end - start)
+
 normalizableColumnResolver = jDH.get_normalizable_column_resolver()
 
 print '\n==> Reading Pickle Files'
@@ -37,7 +55,6 @@ print '\n==> Removing Outliers From Training_Data'
 ##################################################
 # Find Keep Mask and Apply IT to Training_Data and Training_Labels
 ##################################################
-# OUTLIER DELETION on <input_matrix> and <trainlabels>
 price_keep_mask = RL_prep.find_keep_mask_for_price( x1_train[:, normalizableColumnResolver['price']] )
 
 x1_train = x1_train[price_keep_mask, :]
@@ -54,7 +71,7 @@ normalize_names = ['price', 'num_images', 'num_desc_words', 'days_passed', 'dist
 
 print '\n==> Starting to Train Model\n'
 ##################################################
-# Train Model on Train Data
+# Train Model on Training_Data
 ##################################################
 input_size = 35 + num_features_to_extract
 hidden_size = 1024
@@ -71,7 +88,6 @@ model.compile(optimizer='adam',
               loss='binary_crossentropy',
               metrics=['accuracy', 'categorical_accuracy', 'fbeta_score'])
 
-# train the model, iterating on the data in batches // VERBOSE=2 for printing metrics
 model.fit(x1_train, y1_train, validation_split=0.05, nb_epoch=300, batch_size=512, verbose=2)
 # model.fit(x1_train, y1_train, validation_split=0.04, nb_epoch=500, batch_size=512, class_weight={0: 1.25, 1: 1.1, 2: 1.0}, verbose=2)
 
@@ -79,6 +95,7 @@ model.fit(x1_train, y1_train, validation_split=0.05, nb_epoch=300, batch_size=51
 
 # Get File Names (model name is formed by number of hidden and input layer nodes)
 fname_dictionary = jDH.get_model_and_submission_file_name_dictionary(input_size, hidden_size)
+
 # Save This Model
 model.save(fname_dictionary['model_fname'])
 

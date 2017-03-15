@@ -31,15 +31,13 @@ def handle_features_only_and_picle_it(num_features_to_extract):
 
     x_features = x['features']
 
-    # Training Data PART STARTS!
-    feature_matrix = np.zeros(shape=(x_features.__len__(), num_features_to_extract))
-    ii = 0
+    feature_matrix = np.empty([x_features.__len__(), 0], dtype=int)
+    # START Working on Training_Data!
     # Add Features as Categorical
     for feature in features_array:
-        f_input = [1 if feature[0] in map(lambda k: re.sub(r'[^\w]', '', k.translate(string.punctuation).lower()), v) else 0 for v in x_features.values()]
-        feature_matrix[:,ii] = f_input
-        # Bu da kolona liste vererek yapilabilen bir atamaymis
-        ii += 1
+        f_input = [1 if feature[0] in map(lambda k: re.sub(r'[^\w]|[\s]', '', k.lower()), v) else 0 for v in x_features.values()]
+        feature_matrix = np.c_[feature_matrix, f_input]
+
 
     print 'Pickling Training_Data (Encoded) Features \t[Started]'
     ################################################
@@ -51,14 +49,12 @@ def handle_features_only_and_picle_it(num_features_to_extract):
     # Test Data Part STARTS!
     test_y_features = test_y['features']
 
-    test_feature_matrix = np.zeros(shape=(test_y_features.__len__(), num_features_to_extract))
-    ii = 0
+    test_feature_matrix = np.empty([test_y_features.__len__(), 0], dtype=int)
+    # START Working on Training_Data!
     # Add Features as Categorical
     for feature in features_array:
-        f_input = [1 if feature[0] in map(lambda k: re.sub(r'[^\w]', '', k.translate(string.punctuation).lower()), v) else 0 for v in test_y_features.values()]
-        test_feature_matrix[:, ii] = f_input
-        # Bu da kolona liste vererek yapilabilen bir atamaymis
-        ii += 1
+        f_input = [1 if feature[0] in map(lambda k: re.sub(r'[^\w]|[\s]', '', k.lower()), v) else 0 for v in test_y_features.values()]
+        test_feature_matrix = np.c_[test_feature_matrix, f_input]
 
     print 'Pickling Test_Data (Encoded) Features \t[Started]'
     ################################################
