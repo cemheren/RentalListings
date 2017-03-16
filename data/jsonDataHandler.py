@@ -107,12 +107,19 @@ def handle_data_and_picle_it():
     # Create INPUT Matrix
     input_matrix = np.column_stack( (bath, bed, price, number_of_images, number_of_description_words, days_passed) )
 
+
     ################################################
     # Get Distances to 5 fixed points
     ################################################
     x_distances = RL_enc.get_distances(x)
     for ii in range(0, x_distances.shape[1]):
         input_matrix = np.c_[input_matrix, x_distances[:, ii].tolist()]
+
+    ################################################
+    # Add PRICE / (BEDROOM + 1)
+    ################################################
+    price_per_bedrooms_po = input_matrix[:, 2] / (input_matrix[:, 1] + 1)
+    input_matrix = np.c_[input_matrix, price_per_bedrooms_po.tolist()]
 
     ################################################
     # Get Region Id Values
@@ -149,7 +156,7 @@ def handle_data_and_picle_it():
 
 
     ################################################
-    # Continue to Test Data Part
+    # Continue to Test_Data Part
     ################################################
 
 
@@ -177,6 +184,12 @@ def handle_data_and_picle_it():
     test_y_distances = RL_enc.get_distances(test_y)
     for ii in range(0, test_y_distances.shape[1]):
         test_input_matrix = np.c_[test_input_matrix, test_y_distances[:, ii].tolist()]
+
+    ################################################
+    # Add PRICE / (BEDROOM + 1)
+    ################################################
+    test_price_per_bedrooms_po = test_input_matrix[:, 2] / (test_input_matrix[:, 1] + 1)
+    test_input_matrix = np.c_[test_input_matrix, test_price_per_bedrooms_po.tolist()]
 
 
     ################################################
@@ -233,13 +246,14 @@ def get_normalizable_column_resolver():
     normalizableColumnResolver['dist_3'] = 8
     normalizableColumnResolver['dist_4'] = 9
     normalizableColumnResolver['dist_5'] = 10
+    normalizableColumnResolver['price_per_bedroom'] = 11
     return normalizableColumnResolver
 
 
-def get_model_and_submission_file_name_dictionary(input_size, hidden_size):
+def get_model_and_submission_file_name_dictionary(input_size, hidden_size, metric_str):
     fname_dictionary = dict()
     random_file_postfix = ''.join(random.choice(string.lowercase) for x in range(5))
-    model_name = 'mi0' + str(input_size) + '_mh0' + str(hidden_size) + '_' + DT.now().strftime("d%d_t%H_%M_")
-    fname_dictionary['model_fname'] = 'samp_model_' + model_name + random_file_postfix + '.km'
-    fname_dictionary['submission_fname'] = 'submission_' + model_name + random_file_postfix + '.txt'
+    model_name = DT.now().strftime("d%d_t%H_%M_metr") + metric_str + '_''mi0' + str(input_size) + '_mh0' + str(hidden_size) + '_'
+    fname_dictionary['model_fname'] = 'sa_model_' + model_name + random_file_postfix + '.km'
+    fname_dictionary['submission_fname'] = 'subm_' + model_name + random_file_postfix + '.txt'
     return fname_dictionary

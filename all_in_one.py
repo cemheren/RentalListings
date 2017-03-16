@@ -4,33 +4,48 @@ import keras
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Dropout
 
-import time
+import re
 
+import time
 import sys
 sys.path.insert(0, './data')
 import jsonDataHandler as jDH
 import RL_preprocessor as RL_prep
+import RL_utils as RL_utils
+
+# Import smtplib for the actual sending function
+import smtplib
+
+# Import the email modules we'll need
+from email.mime.text import MIMEText
 
 
 print '\n==> If There is no Change in Data Handling, You May Deactivate Data Handling or Feature Handling by Setting Booleans'
 #########################################################
 # Set BOOLEANS for DEACTIVATING !!!! @@@@@ !!!!!!
 #########################################################
-HANDLE_FEATURES = True
-HANDLE_REMAINING_DATA = True
+HANDLE_FEATURES = False
+HANDLE_REMAINING_DATA = False
 num_features_to_extract = 200
 
 if HANDLE_FEATURES:
+    print 'HANDLE_FEATURES status: ON'
     start = time.time()
     jDH.handle_features_only_and_picle_it(num_features_to_extract)
     end = time.time()
     print 'Feature Handling Time:', (end - start)
+else:
+    print 'HANDLE_FEATURES status: OFF'
 
 if HANDLE_REMAINING_DATA:
+    print 'HANDLE_REMAINING_DATA status: ON'
     start = time.time()
     jDH.handle_data_and_picle_it()
     end = time.time()
     print 'Data Handling Time:', (end - start)
+else:
+    print 'HANDLE_REMAINING_DATA status: OFF'
+
 
 normalizableColumnResolver = jDH.get_normalizable_column_resolver()
 
@@ -65,7 +80,7 @@ print '\n==> Normalizing Given Columns'
 ##################################################
 # Normalize Train and Test Together
 ##################################################
-normalize_names = ['price', 'num_images', 'num_desc_words', 'days_passed', 'dist_1', 'dist_2', 'dist_3', 'dist_4', 'dist_5']
+normalize_names = ['price', 'num_images', 'num_desc_words', 'days_passed', 'dist_1', 'dist_2', 'dist_3', 'dist_4', 'dist_5', 'price_per_bedroom']
 (x1_train, x1_test) = RL_prep.normalize_cols(x1_train, x1_test, normalizableColumnResolver, normalize_names)
 
 
@@ -73,28 +88,33 @@ print '\n==> Starting to Train Model\n'
 ##################################################
 # Train Model on Training_Data
 ##################################################
-input_size = 35 + num_features_to_extract
+input_size = 36 + num_features_to_extract
 hidden_size = 1024
 
 model = Sequential()
-model.add(Dense(output_dim=hidden_size, input_dim=input_size, init='glorot_normal', activation='tanh'))
+#model.add(Dense(output_dim=hidden_size, input_dim=input_size, init='glorot_normal', activation='tanh'))
+model.add(Dense(output_dim=hidden_size, input_dim=input_size, init='glorot_normal'))
+model.add(keras.layers.advanced_activations.ELU(alpha=1.0))
 model.add(Dropout(0.3))
-model.add(Dense(output_dim=hidden_size, input_dim=hidden_size, init='glorot_normal', activation='tanh'))
+model.add(Dense(output_dim=hidden_size, input_dim=hidden_size, init='glorot_normal'))
+model.add(keras.layers.advanced_activations.ELU(alpha=1.0))
 model.add(Dropout(0.3))
 
 model.add(Dense(output_dim=3, input_dim=hidden_size, init='glorot_normal', W_regularizer='l1l2', activation='softmax'))
 
-model.compile(optimizer='adam',
+model.compile(optimizer='adadelta',
               loss='binary_crossentropy',
-              metrics=['accuracy', 'categorical_accuracy', 'fbeta_score'])
+              metrics=['accuracy', 'categorical_accuracy'])
 
-model.fit(x1_train, y1_train, validation_split=0.05, nb_epoch=300, batch_size=512, verbose=2)
+hist = model.fit(x1_train, y1_train, validation_split=0.05, nb_epoch=10, batch_size=512, verbose=2)
 # model.fit(x1_train, y1_train, validation_split=0.04, nb_epoch=500, batch_size=512, class_weight={0: 1.25, 1: 1.1, 2: 1.0}, verbose=2)
 
 
+# Generate Trailer Metric String
+metric_str = re.sub(r'[.]', '_', '%.3f' % (hist.history['val_loss'][-1]))
 
 # Get File Names (model name is formed by number of hidden and input layer nodes)
-fname_dictionary = jDH.get_model_and_submission_file_name_dictionary(input_size, hidden_size)
+fname_dictionary = jDH.get_model_and_submission_file_name_dictionary(input_size, hidden_size, metric_str)
 
 # Save This Model
 model.save(fname_dictionary['model_fname'])
@@ -110,21 +130,13 @@ print '\n==> Running Trained Model on Test Data'
 ##################################################
 # Run This Model on Test Data
 ##################################################
-result = model.predict(x1_test, verbose=2)
+results_test = model.predict(x1_test, verbose=2)
 
-print '\n==> Preparing Submission File'
-submission_file = []
-submission_file.append("listing_id,high,medium,low")
 
-for i in range(len(result)):
-    current_id = ids_test[i]
-    r = result[i]
-    line = str(current_id) + ',' + ",".join(map(str, r))
-    submission_file.append(line)
+# Prepare Submission File
+RL_utils.prepare_submission_file(fname_dictionary['submission_fname'], results_test, ids_test)
 
-# Save Output of Testing
-sub_file = open(fname_dictionary['submission_fname'], 'w')
-for item in submission_file:
-    sub_file.write("%s\n" % item)
+
+
 
 print '\n==> All Done'

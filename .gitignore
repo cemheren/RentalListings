@@ -101,4 +101,6 @@ simple_train_inputs_features.pickle
 *.km
 submission_.*
 submission_*
+subm_.*
+subm_*
 *.pyc
