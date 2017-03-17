@@ -13,11 +13,6 @@ import jsonDataHandler as jDH
 import RL_preprocessor as RL_prep
 import RL_utils as RL_utils
 
-# Import smtplib for the actual sending function
-import smtplib
-
-# Import the email modules we'll need
-from email.mime.text import MIMEText
 
 
 print '\n==> If There is no Change in Data Handling, You May Deactivate Data Handling or Feature Handling by Setting Booleans'
@@ -25,7 +20,7 @@ print '\n==> If There is no Change in Data Handling, You May Deactivate Data Han
 # Set BOOLEANS for DEACTIVATING !!!! @@@@@ !!!!!!
 #########################################################
 HANDLE_FEATURES = False
-HANDLE_REMAINING_DATA = False
+HANDLE_REMAINING_DATA = True
 num_features_to_extract = 200
 
 if HANDLE_FEATURES:
@@ -88,7 +83,7 @@ print '\n==> Starting to Train Model\n'
 ##################################################
 # Train Model on Training_Data
 ##################################################
-input_size = 36 + num_features_to_extract
+input_size = 37 + num_features_to_extract
 hidden_size = 1024
 
 model = Sequential()
@@ -106,11 +101,11 @@ model.compile(optimizer='adadelta',
               loss='binary_crossentropy',
               metrics=['accuracy', 'categorical_accuracy'])
 
-hist = model.fit(x1_train, y1_train, validation_split=0.05, nb_epoch=10, batch_size=512, verbose=2)
-# model.fit(x1_train, y1_train, validation_split=0.04, nb_epoch=500, batch_size=512, class_weight={0: 1.25, 1: 1.1, 2: 1.0}, verbose=2)
+hist = model.fit(x1_train, y1_train, validation_split=0.05, nb_epoch=1000, batch_size=512, verbose=2)
+# hist = model.fit(x1_train, y1_train, validation_split=0.04, nb_epoch=1000, batch_size=512, class_weight={0: 1.2, 1: 1.05, 2: 1.0}, verbose=2)
 
 
-# Generate Trailer Metric String
+# Generate String of Final epoch Metric
 metric_str = re.sub(r'[.]', '_', '%.3f' % (hist.history['val_loss'][-1]))
 
 # Get File Names (model name is formed by number of hidden and input layer nodes)

@@ -122,6 +122,13 @@ def handle_data_and_picle_it():
     input_matrix = np.c_[input_matrix, price_per_bedrooms_po.tolist()]
 
     ################################################
+    # Add PRICE / (BATHROOM + 1)
+    ################################################
+    price_per_bathrooms_po = input_matrix[:, 2] / (input_matrix[:, 0] + 1)
+    input_matrix = np.c_[input_matrix, price_per_bathrooms_po.tolist()]
+
+
+    ################################################
     # Get Region Id Values
     ################################################
     # LatLong ==> Region Id ==> Categorical Encoding  (extra 24 inputs)
@@ -137,6 +144,7 @@ def handle_data_and_picle_it():
     trainlabels = keras.utils.np_utils.to_categorical(interest)
 
     # Buna Gerek Yok Sanki ARTIK cunku Outlier ayiklamayi 1 ust seviyeye tasidim !!!!
+    # Todo: Bu Gereksiz ise atalim temizleyelim
     # pickle.dump(trainlabels, open(path_prefix + 'simple_train_labels_with_outliers.pickle', 'wb'))
 
     ################################################
@@ -190,6 +198,12 @@ def handle_data_and_picle_it():
     ################################################
     test_price_per_bedrooms_po = test_input_matrix[:, 2] / (test_input_matrix[:, 1] + 1)
     test_input_matrix = np.c_[test_input_matrix, test_price_per_bedrooms_po.tolist()]
+
+    ################################################
+    # Add PRICE / (BATHROOM + 1)
+    ################################################
+    test_price_per_bathrooms_po = test_input_matrix[:, 2] / (test_input_matrix[:, 0] + 1)
+    test_input_matrix = np.c_[test_input_matrix, test_price_per_bathrooms_po.tolist()]
 
 
     ################################################
@@ -247,6 +261,7 @@ def get_normalizable_column_resolver():
     normalizableColumnResolver['dist_4'] = 9
     normalizableColumnResolver['dist_5'] = 10
     normalizableColumnResolver['price_per_bedroom'] = 11
+    normalizableColumnResolver['price_per_bathroom'] = 12
     return normalizableColumnResolver
 
 
