@@ -265,10 +265,19 @@ def get_normalizable_column_resolver():
     return normalizableColumnResolver
 
 
-def get_model_and_submission_file_name_dictionary(input_size, hidden_size, metric_str):
+def get_model_and_submission_file_name_dictionary(input_size, hidden_size, num_epoch, batch_sz, lrate, hist):
     fname_dictionary = dict()
     random_file_postfix = ''.join(random.choice(string.lowercase) for x in range(5))
-    model_name = DT.now().strftime("d%d_t%H_%M_metr") + metric_str + '_''mi0' + str(input_size) + '_mh0' + str(hidden_size) + '_'
-    fname_dictionary['model_fname'] = 'sa_model_' + model_name + random_file_postfix + '.km'
-    fname_dictionary['submission_fname'] = 'subm_' + model_name + random_file_postfix + '.txt'
+    time_str = DT.now().strftime("d%d_t%H_%M_")
+    optimizer_name = type(hist.model.optimizer).__name__
+    if hist.params['do_validation']:
+        metric_str = 'vloss' + re.sub(r'[.]', '_', '%.3f' % (hist.history['val_loss'][-1]))
+    else:
+        metric_str = 'tloss' + re.sub(r'[.]', '_', '%.3f' % (hist.history['loss'][-1]))
+
+    lrate_str = re.sub(r'[.]', '_', '%.3f' % lrate)
+
+    model_name = time_str + metric_str + '_inp' + str(input_size) + '_hid' + str(hidden_size) + '_opt' + optimizer_name + '_lr' + lrate_str + '_ep' + str(num_epoch) + '_batch' + str(batch_sz)
+    fname_dictionary['model_fname'] = 'saved_model_' + model_name + '_' + random_file_postfix + '.km'
+    fname_dictionary['submission_fname'] = 'subm_' + model_name + '_' + random_file_postfix + '.txt'
     return fname_dictionary

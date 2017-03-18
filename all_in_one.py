@@ -75,11 +75,12 @@ print '\n==> Normalizing Given Columns'
 ##################################################
 # Normalize Train and Test Together
 ##################################################
-normalize_names = ['price', 'num_images', 'num_desc_words', 'days_passed', 'dist_1', 'dist_2', 'dist_3', 'dist_4', 'dist_5', 'price_per_bedroom']
+normalize_names = ['bathrooms', 'bedrooms', 'price', 'num_images', 'num_desc_words', 'days_passed', \
+    'dist_1', 'dist_2', 'dist_3', 'dist_4', 'dist_5', 'price_per_bedroom', 'price_per_bathroom']
 (x1_train, x1_test) = RL_prep.normalize_cols(x1_train, x1_test, normalizableColumnResolver, normalize_names)
 
 
-print '\n==> Starting to Train Model\n'
+print '\n==> Starting to Train the Model\n'
 ##################################################
 # Train Model on Training_Data
 ##################################################
@@ -87,29 +88,35 @@ input_size = 37 + num_features_to_extract
 hidden_size = 1024
 
 model = Sequential()
-#model.add(Dense(output_dim=hidden_size, input_dim=input_size, init='glorot_normal', activation='tanh'))
 model.add(Dense(output_dim=hidden_size, input_dim=input_size, init='glorot_normal'))
 model.add(keras.layers.advanced_activations.ELU(alpha=1.0))
-model.add(Dropout(0.3))
+model.add(Dropout(0.5))
+
 model.add(Dense(output_dim=hidden_size, input_dim=hidden_size, init='glorot_normal'))
 model.add(keras.layers.advanced_activations.ELU(alpha=1.0))
-model.add(Dropout(0.3))
+model.add(Dropout(0.5))
 
-model.add(Dense(output_dim=3, input_dim=hidden_size, init='glorot_normal', W_regularizer='l1l2', activation='softmax'))
+model.add(Dense(output_dim=100, input_dim=hidden_size, init='glorot_normal'))
+model.add(keras.layers.advanced_activations.ELU(alpha=1.0))
+model.add(Dropout(0.5))
 
-model.compile(optimizer='adadelta',
-              loss='binary_crossentropy',
-              metrics=['accuracy', 'categorical_accuracy'])
+# This 100 has some reason related to regularization
+model.add(Dense(output_dim=3, input_dim=100, init='glorot_normal', W_regularizer='l1l2'))
+model.add(Activation('softmax'))
 
-hist = model.fit(x1_train, y1_train, validation_split=0.05, nb_epoch=1000, batch_size=512, verbose=2)
-# hist = model.fit(x1_train, y1_train, validation_split=0.04, nb_epoch=1000, batch_size=512, class_weight={0: 1.2, 1: 1.05, 2: 1.0}, verbose=2)
+lrate = 1.0
+optim = keras.optimizers.Adadelta(lr=lrate, rho=0.95, epsilon=1e-08, decay=0.0)
+model.compile(optimizer=optim,
+              loss='categorical_crossentropy',
+              metrics=['accuracy', 'fbeta_score'])
 
+num_epoch = 400
+batch_sz = 512
+hist = model.fit(x1_train, y1_train, validation_split=0.0, nb_epoch=num_epoch, batch_size=batch_sz, verbose=2)
 
-# Generate String of Final epoch Metric
-metric_str = re.sub(r'[.]', '_', '%.3f' % (hist.history['val_loss'][-1]))
 
 # Get File Names (model name is formed by number of hidden and input layer nodes)
-fname_dictionary = jDH.get_model_and_submission_file_name_dictionary(input_size, hidden_size, metric_str)
+fname_dictionary = jDH.get_model_and_submission_file_name_dictionary(input_size, hidden_size, num_epoch, batch_sz, lrate, hist)
 
 # Save This Model
 model.save(fname_dictionary['model_fname'])
