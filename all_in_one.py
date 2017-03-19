@@ -20,8 +20,8 @@ print '\n==> If There is no Change in Data Handling, You May Deactivate Data Han
 # Set BOOLEANS for DEACTIVATING !!!! @@@@@ !!!!!!
 #########################################################
 HANDLE_FEATURES = False
-HANDLE_REMAINING_DATA = True
-num_features_to_extract = 200
+HANDLE_REMAINING_DATA = False
+num_features_to_extract = 73
 
 if HANDLE_FEATURES:
     print 'HANDLE_FEATURES status: ON'
@@ -85,38 +85,39 @@ print '\n==> Starting to Train the Model\n'
 # Train Model on Training_Data
 ##################################################
 input_size = 37 + num_features_to_extract
-hidden_size = 1024
+hidden_size = 140
+hidden_repetition_size = 2
 
 model = Sequential()
 model.add(Dense(output_dim=hidden_size, input_dim=input_size, init='glorot_normal'))
 model.add(keras.layers.advanced_activations.ELU(alpha=1.0))
 model.add(Dropout(0.5))
 
-model.add(Dense(output_dim=hidden_size, input_dim=hidden_size, init='glorot_normal'))
-model.add(keras.layers.advanced_activations.ELU(alpha=1.0))
-model.add(Dropout(0.5))
+for ii in range(0, hidden_repetition_size):
+    model.add(Dense(output_dim=hidden_size, input_dim=hidden_size, init='glorot_normal'))
+    model.add(keras.layers.advanced_activations.ELU(alpha=1.0))
+    model.add(Dropout(0.5))
 
 model.add(Dense(output_dim=100, input_dim=hidden_size, init='glorot_normal'))
 model.add(keras.layers.advanced_activations.ELU(alpha=1.0))
 model.add(Dropout(0.5))
-
 # This 100 has some reason related to regularization
 model.add(Dense(output_dim=3, input_dim=100, init='glorot_normal', W_regularizer='l1l2'))
 model.add(Activation('softmax'))
 
-lrate = 1.0
+lrate = 1.1
 optim = keras.optimizers.Adadelta(lr=lrate, rho=0.95, epsilon=1e-08, decay=0.0)
 model.compile(optimizer=optim,
               loss='categorical_crossentropy',
               metrics=['accuracy', 'fbeta_score'])
 
-num_epoch = 400
+num_epoch = 700
 batch_sz = 512
-hist = model.fit(x1_train, y1_train, validation_split=0.0, nb_epoch=num_epoch, batch_size=batch_sz, verbose=2)
+hist = model.fit(x1_train, y1_train, validation_split=0.15, nb_epoch=num_epoch, batch_size=batch_sz, verbose=2)
 
 
 # Get File Names (model name is formed by number of hidden and input layer nodes)
-fname_dictionary = jDH.get_model_and_submission_file_name_dictionary(input_size, hidden_size, num_epoch, batch_sz, lrate, hist)
+fname_dictionary = jDH.get_model_and_submission_file_name_dictionary(num_features_to_extract, input_size, hidden_size, num_epoch, lrate, hist)
 
 # Save This Model
 model.save(fname_dictionary['model_fname'])

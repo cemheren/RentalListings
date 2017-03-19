@@ -50,7 +50,7 @@ def handle_features_only_and_picle_it(num_features_to_extract):
     test_y_features = test_y['features']
 
     test_feature_matrix = np.empty([test_y_features.__len__(), 0], dtype=int)
-    # START Working on Training_Data!
+    # START Working on Test_Data!
     # Add Features as Categorical
     for feature in features_array:
         f_input = [1 if feature[0] in map(lambda k: re.sub(r'[^\w]|[\s]', '', k.lower()), v) else 0 for v in test_y_features.values()]
@@ -94,8 +94,8 @@ def handle_data_and_picle_it():
     # Input Variables
     ################################################
     # Numerical Columns
-    bath = [v for v in x['bathrooms'].values()]
-    bed = [v for v in x['bedrooms'].values()]
+    bath = [float(v) for v in x['bathrooms'].values()]
+    bed = [float(v) for v in x['bedrooms'].values()]
     price = [float(v) for v in x['price'].values()]
     number_of_images = [float(v.__len__()) for v in x['photos'].values()]
     number_of_description_words = [float(v.__len__()) for v in x['description'].values()]
@@ -127,7 +127,6 @@ def handle_data_and_picle_it():
     price_per_bathrooms_po = input_matrix[:, 2] / (input_matrix[:, 0] + 1)
     input_matrix = np.c_[input_matrix, price_per_bathrooms_po.tolist()]
 
-
     ################################################
     # Get Region Id Values
     ################################################
@@ -136,12 +135,6 @@ def handle_data_and_picle_it():
     region_xids = RL_enc.to_region_idx_encoding(x)
     for ii in range(0, region_xids.shape[1]):
         input_matrix = np.c_[input_matrix, region_xids[:, ii].tolist()]
-
-    ################################################
-    # Get LABEL Values
-    ################################################
-    interest = [interestResolver[v] for v in x['interest_level'].values()]
-    trainlabels = keras.utils.np_utils.to_categorical(interest)
 
     # Buna Gerek Yok Sanki ARTIK cunku Outlier ayiklamayi 1 ust seviyeye tasidim !!!!
     # Todo: Bu Gereksiz ise atalim temizleyelim
@@ -153,6 +146,12 @@ def handle_data_and_picle_it():
     # description_train_array = pickle.load(open("./description/description_train_results.pickle", 'rb'))
     # input_matrix = np.c_[input_matrix, description_train_array]
 
+
+    ################################################
+    # Get LABEL Values
+    ################################################
+    interest = [interestResolver[v] for v in x['interest_level'].values()]
+    trainlabels = keras.utils.np_utils.to_categorical(interest)
 
     print 'Pickling Training_Data \t[Started]'
     ################################################
@@ -175,11 +174,11 @@ def handle_data_and_picle_it():
     listing_ids = test_y['listing_id'].values()
     pickle.dump(listing_ids, open(path_prefix + 'listing_ids.pickle', 'wb'))
 
-    test_bath = [v for v in test_y['bathrooms'].values()]
-    test_bed = [v for v in test_y['bedrooms'].values()]
+    test_bath = [float(v) for v in test_y['bathrooms'].values()]
+    test_bed = [float(v) for v in test_y['bedrooms'].values()]
     test_price = [float(v) for v in test_y['price'].values()]
-    test_number_of_images = [v.__len__() for v in test_y['photos'].values()]
-    test_number_of_description_words = [v.__len__() for v in test_y['description'].values()]
+    test_number_of_images = [float(v.__len__()) for v in test_y['photos'].values()]
+    test_number_of_description_words = [float(v.__len__()) for v in test_y['description'].values()]
 
     test_days_passed = [(fixed_date - DT.strptime(v, date_format)).days for v in test_y['created'].values()]
 
@@ -220,7 +219,6 @@ def handle_data_and_picle_it():
     ################################################
     # description_test_array = pickle.load(open("./description/description_test_results.pickle", 'rb'))
     # test_input_matrix = np.c_[test_input_matrix, description_test_array]
-
 
     print 'Pickling Test_Data \t[Started]'
     ################################################
@@ -265,9 +263,9 @@ def get_normalizable_column_resolver():
     return normalizableColumnResolver
 
 
-def get_model_and_submission_file_name_dictionary(input_size, hidden_size, num_epoch, batch_sz, lrate, hist):
+def get_model_and_submission_file_name_dictionary(num_features, input_size, hidden_size, num_epoch, lrate, hist):
     fname_dictionary = dict()
-    random_file_postfix = ''.join(random.choice(string.lowercase) for x in range(5))
+    random_file_postfix = ''.join(random.choice(string.lowercase) for x in range(4))
     time_str = DT.now().strftime("d%d_t%H_%M_")
     optimizer_name = type(hist.model.optimizer).__name__
     if hist.params['do_validation']:
@@ -277,7 +275,7 @@ def get_model_and_submission_file_name_dictionary(input_size, hidden_size, num_e
 
     lrate_str = re.sub(r'[.]', '_', '%.3f' % lrate)
 
-    model_name = time_str + metric_str + '_inp' + str(input_size) + '_hid' + str(hidden_size) + '_opt' + optimizer_name + '_lr' + lrate_str + '_ep' + str(num_epoch) + '_batch' + str(batch_sz)
+    model_name = time_str + metric_str + '_nF'+ str(num_features) + '_in' + str(input_size) + '_hid' + str(hidden_size) + '_' + optimizer_name + '_lr' + lrate_str + '_ep' + str(num_epoch)
     fname_dictionary['model_fname'] = 'saved_model_' + model_name + '_' + random_file_postfix + '.km'
-    fname_dictionary['submission_fname'] = 'subm_' + model_name + '_' + random_file_postfix + '.txt'
+    fname_dictionary['submission_fname'] = 'sbm_' + model_name + '_' + random_file_postfix + '.txt'
     return fname_dictionary

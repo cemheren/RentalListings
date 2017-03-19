@@ -6,6 +6,8 @@ import string
 from collections import Counter
 import keras.utils.np_utils as NPU
 
+from datetime import datetime as DT
+
 # Arguments:
 # features_data_dict ==>  Dictionary that contains {listing_id: feature_list} pairs  [from json file]
 # unique_feature_idx_dict ==> Dictionary that contains {feature_text: feature_fixed_index} pairs [from json file dump]
@@ -89,7 +91,7 @@ def get_top_n_features(x_json, number_of_features):
     feature_list = []
     unique_feature_ap_count = Counter()
     for item in features:
-        this_items_features = [re.sub(r'[^\w]', '', v.translate(string.punctuation).lower()) for v in features[item]]
+        this_items_features = [re.sub(r'[^\w]|[\s]', '', v.lower()) for v in features[item]]
         unique_feature_ap_count.update(this_items_features)
         for single_feature in this_items_features:
             feature_list.append(single_feature)
@@ -101,3 +103,17 @@ def get_top_n_features(x_json, number_of_features):
     most_common_features = unique_feature_ap_count.most_common(number_of_features)
 
     return most_common_features
+
+
+def encode_weekday_of_listings(loaded_json):
+    date_format = "%Y-%m-%d %H:%M:%S"
+
+    date_created = [DT.strptime(v, date_format).weekday() for v in loaded_json['created'].values()]
+
+    date_created_enc = np.empty([date_created.__len__(), 7], dtype=float)
+    ii = 0
+    for dc in date_created:
+        date_created_enc[ii, dc] = 1.0
+        ii += 1
+    # Now we have encoded day of creating in date_created_enc NDARRAY
+    return date_created_enc
